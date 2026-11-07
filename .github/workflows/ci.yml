@@ -168,4 +168,10 @@ jobs:
           src/server/__tests__/skill-runtime-closure.test.ts
           src/agent/__tests__/plan-mode-skill-runtime.test.ts
       - name: Actual approval pipeline
-        run: node --import tsx --test --test-name-pattern="skill runtime: real approval" src/agent/__tests__/tool-pipeline.test.ts
+        # 注意：run 的值里含「冒号+空格」时不能用普通标量，
+        # `--test-name-pattern="skill runtime: real approval"` 中的 `: ` 会被 YAML
+        # 解析成映射分隔符，整份 workflow 直接判为 Invalid workflow file。
+        run: >-
+          node --import tsx --test
+          --test-name-pattern="skill runtime: real approval"
+          src/agent/__tests__/tool-pipeline.test.ts
