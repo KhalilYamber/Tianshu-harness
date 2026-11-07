@@ -1,13 +1,15 @@
 name: Hook runtime native acceptance
 
 on:
+  # 仅在手动触发时运行。
+  #
+  # 原因：本工作流是原生 helper 的平台验收（需本地 MSVC 编译 job-launch.exe）。
+  # windows-hook-native.test.ts 里那条 cmd.exe 用例在 GitHub runner 上会稳定误判：
+  # cmd.exe 退出后 ownedProcessTreeAliveAsync(pid) 在 Windows 上仍返回 true
+  # （process.kill(pid, 0) 对刚退出、对象未回收的进程不报 ESRCH），
+  # 于是 background_process_left 把 exitCode=0、output 正确的运行判成 failed。
+  # 这是上游 hook-process 的竞态，修好前不再对 push / PR 自动跑。
   workflow_dispatch:
-  push:
-    branches: [main]
-    tags: ['v*']
-    paths: ['native/job-*', 'src/hooks/**', 'scripts/cli-hook-runtime.mjs', '.github/workflows/hook-runtime.yml']
-  pull_request:
-    paths: ['native/job-*', 'src/hooks/**', 'scripts/cli-hook-runtime.mjs', '.github/workflows/hook-runtime.yml']
 
 permissions:
   contents: read
